@@ -5,10 +5,10 @@ import java.time.LocalTime;
 
 public final class BookingRequest {
     
-    public final LocalDateTime submissionTime;
-    public final LocalDateTime startTime;
-    public final LocalDateTime endTime;
-    public final String employeeId;
+    private final LocalDateTime submissionTime;
+    private final LocalDateTime startTime;
+    private final LocalDateTime endTime;
+    private final String employeeId;
 
     public BookingRequest(LocalDateTime submissionTime, LocalDateTime startTime, LocalDateTime endTime, String employeeId) {
         if (endTime.isBefore(startTime)) {
@@ -19,6 +19,22 @@ public final class BookingRequest {
         this.startTime = startTime;
         this.endTime = endTime;
         this.employeeId = employeeId;
+    }
+
+    public LocalDateTime getSubmissionTime() {
+        return submissionTime;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public String getEmployeeId() {
+        return employeeId;
     }
 
     public boolean fallsInTimeInterval(LocalTime openTime, LocalTime closeTime) {

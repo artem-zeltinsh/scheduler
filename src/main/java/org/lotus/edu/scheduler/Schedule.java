@@ -1,13 +1,16 @@
 package org.lotus.edu.scheduler;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toCollection;
 
 public final class Schedule {
-    public final Set<Item> items;
+
+    private final Set<Item> items;
 
     private Schedule(Set<Item> items) {
         this.items = items;
@@ -16,25 +19,24 @@ public final class Schedule {
     public static Schedule of(LocalTime openTime, LocalTime closeTime, List<BookingRequest> bookingRequests) {
         return new Schedule(bookingRequests.stream()
                 .filter(r -> r.fallsInTimeInterval(openTime, closeTime))
-                .sorted((BookingRequest r1, BookingRequest r2) -> r1.submissionTime.compareTo(r2.submissionTime))
-                .map(Item::of)
-                .collect(toCollection(TreeSet::new)));
+                .sorted(comparing(BookingRequest::getSubmissionTime))
+                .map(Item::of).collect(toCollection(TreeSet::new)));
     }
 
-    public Set<Item> getItems() {
-        return new TreeSet<>(items);
+    public Iterator<Item> items() {
+        return items.iterator();
     }
 
-    public Set<Item> getItems(LocalDate date) {
-        return items.stream().filter(i -> i.date.equals(date)).collect(toCollection(TreeSet::new));
+    public Iterator<Item> items(LocalDate date) {
+        return items.stream().filter(i -> i.date.equals(date)).iterator();
     }
 
     public static class Item implements Comparable<Item> {
 
-        public final LocalDate date;
-        public final LocalTime startTime;
-        public final LocalTime endTime;
-        public final String employeeId;
+        private final LocalDate date;
+        private final LocalTime startTime;
+        private final LocalTime endTime;
+        private final String employeeId;
 
         private Item(LocalDate date, LocalTime startTime, LocalTime endTime, String employeeId) {
             if (endTime.isBefore(startTime)) {
@@ -46,9 +48,26 @@ public final class Schedule {
             this.employeeId = employeeId;
         }
 
-        public static Item of(BookingRequest r) {
-            return new Item(r.startTime.toLocalDate(), r.startTime.toLocalTime(), r.endTime.toLocalTime(), r
-                    .employeeId);
+        public static Item of(BookingRequest request) {
+            LocalDateTime startTime = request.getStartTime();
+            return new Item(startTime.toLocalDate(), startTime.toLocalTime(), request.getEndTime().toLocalTime(),
+                    request.getEmployeeId());
+        }
+
+        public LocalDate getDate() {
+            return date;
+        }
+
+        public LocalTime getStartTime() {
+            return startTime;
+        }
+
+        public LocalTime getEndTime() {
+            return endTime;
+        }
+
+        public String getEmployeeId() {
+            return employeeId;
         }
 
         @Override

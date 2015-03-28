@@ -6,10 +6,12 @@ import org.lotus.edu.scheduler.Schedule.Item;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
 
 public class ScheduleTest {
 
@@ -99,14 +101,18 @@ public class ScheduleTest {
     }
 
     private static void assertSchedule(Schedule schedule, Item... expectedItems) {
-        assertArrayEquals(expectedItems, schedule.getItems().toArray());
+        List<Item> actualItems = new ArrayList<>();
+        schedule.items().forEachRemaining(actualItems::add);
+        assertArrayEquals(expectedItems, actualItems.toArray());
     }
 
     private static void assertScheduleDay(Schedule schedule, LocalDate date, Item... expectedItems) {
-        assertArrayEquals(expectedItems, schedule.getItems(date).toArray());
+        List<Item> actualItems = new ArrayList<>();
+        schedule.items(date).forEachRemaining(actualItems::add);
+        assertArrayEquals(expectedItems, actualItems.toArray());
     }
 
     private static void assertEmptySchedule(Schedule schedule) {
-        assertEquals(0, schedule.getItems().size());
+        assertFalse(schedule.items().hasNext());
     }
 }
