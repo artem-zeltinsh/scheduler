@@ -29,7 +29,7 @@ public class ScheduleTest {
     }
 
     @Test
-    public void bookingRequestStartTimeEqualsToOfficeStartTime() {
+    public void bookingRequestStartTimeIsEqualToOfficeStartTime() {
         // Given office open and close time
         // and booking request start time is equal to office open time
         BookingRequest request = createRequest("2011-03-17T10:19:24", "2011-03-21T09:00", "2011-03-21T09:15", "Mark");
@@ -55,7 +55,7 @@ public class ScheduleTest {
     }
 
     @Test
-    public void bookingRequestEndTimeEqualsToOfficeCloseTime() {
+    public void bookingRequestEndTimeIsEqualToOfficeCloseTime() {
         // Given office working hours
         // and booking request end time falling outside working hours
         BookingRequest request = createRequest("2011-03-17T10:22:14", "2011-03-21T19:20", "2011-03-21T19:30", "Jon");
@@ -68,10 +68,23 @@ public class ScheduleTest {
     }
 
     @Test
+    public void duplicatedBookingRequests() {
+        // Given two duplicated booking requests
+        BookingRequest request1 = createRequest("2011-03-17T10:18:11", "2011-03-21T09:00", "2011-03-21T11:00", "Ann");
+        BookingRequest request2 = createRequest("2011-03-17T10:18:11", "2011-03-21T09:00", "2011-03-21T11:00", "Ann");
+
+        // when scheduling these booking requests
+        Schedule schedule = Schedule.of(LocalTime.parse("09:00"), LocalTime.parse("19:30"), asList(request1, request2));
+
+        // then only one of duplicated booking requests is added to the schedule
+        assertSchedule(schedule, Item.of(request1));
+    }
+
+    @Test
     public void overlappedBookingRequests() {
         // Given two overlapped booking requests
         BookingRequest request1 = createRequest("2011-03-17T10:18:11", "2011-03-21T09:00", "2011-03-21T11:00", "Peter");
-        BookingRequest request2 = createRequest("2011-03-16T12:34:56", "2011-03-21T09:00", "2011-03-21T11:00", "Mark");
+        BookingRequest request2 = createRequest("2011-03-16T12:34:56", "2011-03-21T09:00", "2011-03-21T11:30", "Mark");
 
         // when scheduling these booking requests
         Schedule schedule = Schedule.of(LocalTime.parse("09:00"), LocalTime.parse("19:30"), asList(request1, request2));
